@@ -1,4 +1,4 @@
-(ns triple.core)
+(ns triplj.core)
 
 (defrecord Triple [s p o t])
 

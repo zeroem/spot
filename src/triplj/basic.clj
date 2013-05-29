@@ -1,7 +1,7 @@
-(ns triple.basic
-  (:require [triple.core]))
+(ns triplj.basic
+  (:require [triplj.core]))
 
-(defn test-triple [f, ^triple.core.Triple t]
+(defn test-triple [f, ^triplj.core.Triple t]
   (loop [remaining-keys (keys f)]
     (cond 
       (empty? remaining-keys) true
