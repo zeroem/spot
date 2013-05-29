@@ -1,6 +1,7 @@
 (ns triple.core)
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defrecord Triple [s p o t])
+
+(defprotocol TripleStore
+  (query [this ^Triple f])
+  (add [this ^Triple t]))
