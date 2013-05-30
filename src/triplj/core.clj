@@ -3,5 +3,8 @@
 (defrecord Triple [s p o t])
 
 (defprotocol TripleStore
-  (query [this ^Triple f])
-  (add [this ^Triple t]))
+  (filter [this ^Triple f])
+  (conj [this ^Triple t])
+  (all [this]))
+
+(def match-all (Triple. (fn [t] true)(fn [t] true) (fn [t] true) (fn [t] true)))

@@ -6,13 +6,18 @@
 
 (describe "Basic in memory Triple Store"
   (it "Can test all triple elements"
-    (let [t example-triple
-          f (triplj.core.Triple. #(= "s" %) #(= "p" %) #(= "o" %) #(= "t" %))]
-          (should (test-triple f t))))
-          
+    (should 
+      (let [f (triplj.core.Triple. #(= "s" %) #(= "p" %) #(= "o" %) #(= "t" %))]
+          (test-triple f example-triple))))
+
   (it "Short circuits on false"
-    (let [t example-triple
-          f (triplj.core.Triple. (fn [t] true) (fn [t] false) #(should-fail "this should never be reached") (fn [t] false))]
-          (should-not (test-triple f t))))
+    (should
+      (let [f (triplj.core.Triple. (fn [t] true) (fn [t] false) #(should-fail "this should never be reached") (fn [t] false))]
+        test-triple f example-triple)))
           
-          )
+  (it "Can add new elements"
+    (let [s (triplj.basic.TripleStore. (atom []))]
+      (.conj s example-triple)
+      (should= 1 (count (.all s)))
+      (should= example-triple (first (.all s)))))
+)

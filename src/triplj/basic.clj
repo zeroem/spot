@@ -13,14 +13,15 @@
               (recur (rest remaining-keys)))))))
       
 
-
-
-
-(comment
-(defrecord TripleStore [t]
-  core/TripleStore
-  (query [this f]
+(defrecord TripleStore [a]
+  triplj.core.TripleStore
+  (filter [this f]
     (filter 
-      (.t this))))
-)
+      #(test-triple f %)
+      @(.a this)))
+  (conj [this t]
+    (swap! (.a this) (fn [a] (conj a t))))
+  (all [this]
+    @(.a this))
+  )
 
