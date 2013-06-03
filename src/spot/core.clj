@@ -4,6 +4,12 @@
 (def triple-keys [:s :p :o :t])
 (defn a-triple-index [] {:s (atom {}) :p (atom {}) :o (atom {}) :t (atom {})})
 
+(defn with-each-triple-key [f & {:keys [initial-value]}]
+  (loop [K triple-keys result initial-value]
+    (if-let [k (first K)]
+      (recur (rest K) (f k result))
+      result)))
+
 (defrecord Triple [s p o t])
 
 (defprotocol TripleStoreProtocol
@@ -12,11 +18,10 @@
   (all [this]))
 
 (defn index-query-futures [i f]
-  (loop [K triple-keys futures []]
-    (if (empty? K)
-      futures)
-    (let [k (first K)]
-      (recur (rest K) (future (filter (k f) @(k @i)))))))
+  (with-each-triple-key
+    (fn [k r]
+      (conj r (future (filter (k f) @(k @i)))))
+    []))
 
 (defn index-triple-key! [i ^Triple t k]
   (let [target-index (k i)
@@ -27,11 +32,9 @@
 
 
 (defn index-triple! [i ^Triple t]
-  (loop [K triple-keys]
-    (if-let [k (first K)]
-      (do
-        (index-triple-key! i t k)
-        (recur (rest K))))))
+  (with-each-triple-key
+    (fn [k r]
+      (index-triple-key! i t k))))
 
 (defrecord TripleStore [s i]
   TripleStoreProtocol
