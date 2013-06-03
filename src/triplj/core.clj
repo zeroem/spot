@@ -12,11 +12,11 @@
   (all [this]))
 
 (defn index-query-futures [i f]
-  (loop [remaining-keys triple-keys futures []]
-    (if (empty? remaining-keys)
+  (loop [K triple-keys futures []]
+    (if (empty? K)
       futures)
-    (let [k (first remaining-keys)]
-      (recur (rest remaining-keys) (future (filter (k f) @(k @i)))))))
+    (let [k (first K)]
+      (recur (rest K) (future (filter (k f) @(k @i)))))))
 
 (defn index-triple-key! [i ^Triple t k]
   (let [target-index (k i)
@@ -26,11 +26,12 @@
     (swap! (get @target-index index-key) #(conj % t))))
 
 
-(defn index-triple! [a ^Triple t]
-  (loop [remaining-keys triple-keys]
-    (if-let [k (first remaining-keys)]
-      (index-triple-key! a t k)
-      (recur (rest remaining-keys)))))
+(defn index-triple! [i ^Triple t]
+  (loop [K triple-keys]
+    (if-let [k (first K)]
+      (do
+        (index-triple-key! i t k)
+        (recur (rest K))))))
 
 (defrecord TripleStore [s i]
   TripleStoreProtocol
