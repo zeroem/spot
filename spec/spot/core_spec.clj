@@ -14,10 +14,8 @@
     (it "Can index an entire triple"
         (let [index (spot/a-triple-index)]
           (spot/index-triple! index  example-triple)
-          (loop [K spot/triple-keys]
-            (if-let [k (first K)]
-              (do
-                (should (contains? @(k index) (k example-triple)))
-                (should= example-triple (first @(get @(k index) (k example-triple))))
-                (recur (rest K)))))))
+          (spot/with-each-triple-key
+            (fn [k _]
+              (should (contains? @(k index) (k example-triple)))
+              (should= example-triple (first @(get @(k index) (k example-triple))))))))
           )
