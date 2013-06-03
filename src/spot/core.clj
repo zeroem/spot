@@ -1,21 +1,22 @@
 (ns spot.core
   (require [clojure.set]))
 
-(def triple-keys [:s :p :o :t])
-(defn a-triple-index [] {:s (atom {}) :p (atom {}) :o (atom {}) :t (atom {})})
-
-(defn with-each-triple-key [f & {:keys [initial-value]}]
-  (loop [K triple-keys result initial-value]
-    (if-let [k (first K)]
-      (recur (rest K) (f k result))
-      result)))
-
 (defrecord Triple [s p o t])
 
 (defprotocol TripleStoreProtocol
   (query [this ^Triple f])
-  (add [this ^Triple t])
+  (add! [this ^Triple t])
   (all [this]))
+
+(def triple-keys [:s :p :o :t])
+
+(defn a-triple-index [] {:s (atom {}) :p (atom {}) :o (atom {}) :t (atom {})})
+
+(defn with-each-triple-key [f & {:keys [initial-value]}]
+  (loop [K triple-keys accumulator initial-value]
+    (if-let [k (first K)]
+      (recur (rest K) (f k accumulator))
+      accumulator)))
 
 (defn index-query-futures [i f]
   (with-each-triple-key
@@ -38,7 +39,7 @@
 
 (defrecord TripleStore [s i]
   TripleStoreProtocol
-  (add [this t]
+  (add! [this t]
     (swap! (.s this) (fn [s] (conj s t)))
     (index-triple! (.i this) t))
 
