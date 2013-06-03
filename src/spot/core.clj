@@ -1,4 +1,4 @@
-(ns triplj.core
+(ns spot.core
   (require [clojure.set]))
 
 (def triple-keys [:s :p :o :t])
