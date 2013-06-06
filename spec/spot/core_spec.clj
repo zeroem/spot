@@ -18,9 +18,16 @@
             (fn [k _]
               (should (contains? @(k index) (k example-triple)))
               (should= example-triple (first @(get @(k index) (k example-triple))))))))
-    (it "Can generate futures against an index"
+    (it "Can generate query futures against an index"
         (let [index (spot/a-triple-index)
               f (spot/with-each-triple-key (fn [k r] (assoc r k (fn [t] true))) {})
+              _ (spot/index-triple! index example-triple)
               F (spot/index-query-futures index f)]
           (should= 4 (count F))
+          (loop [futures F]
+            (if-let [f_n (first futures)]
+              (do
+                (should= 1 (count @f_n))
+                (should= example-triple (first @f_n))
+                (recur (rest futures)))))
           )))

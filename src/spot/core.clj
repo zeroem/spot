@@ -18,11 +18,17 @@
       (recur (rest K) (f k accumulator))
       accumulator)))
 
+(defn set-of-matching-triples [I_k f]
+  (reduce (fn [a b] (clojure.set/union a @b))
+          #{}
+          (vals (filter (fn [[v t]] (f v)) I_k))))
+
 (defn index-query-futures [I f]
   (with-each-triple-key
     (fn [k r]
       (if-let [f_k (k f)]
-        (conj r (future (filter f_k @(k I))))
+        (do
+          (conj r (future (set-of-matching-triples @(k I) f_k))))
         r))
     []))
 
@@ -30,7 +36,7 @@
   (let [target-index (k I)
         index-key (k t)]
     (if (not (contains? @target-index index-key))
-      (swap! target-index #(assoc % index-key (atom []))))
+      (swap! target-index #(assoc % index-key (atom #{}))))
     (swap! (get @target-index index-key) #(conj % t))))
 
 
